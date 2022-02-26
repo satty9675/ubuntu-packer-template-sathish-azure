@@ -1,0 +1,52 @@
+{
+  "builders": [{
+    "type": "azure-arm",
+
+    "client_id": "41bb9c77-0677-4d8a-99aa-e70d8bda5bf7",
+    "client_secret": "ONh4Slbp~vJ.yw_bBcM8EKDfbWUMwm6jbZ",
+    "tenant_id": "4c25b8a6-17f7-46f9-83f0-54734ab81fb1",
+    "subscription_id": "e3161af9-96b8-44e0-a1d1-c6ee323e87a8",
+
+    "managed_image_resource_group_name": "sathish-azure-project",
+    "managed_image_name": "sathishPackerImageLinuxVM",
+
+    "os_type": "Linux",
+    "image_publisher": "Canonical",
+    "image_offer": "UbuntuServer",
+    "image_sku": "18.04-LTS",
+
+    "azure_tags": {
+        "dept": "Engineering",
+        "task": "Image deployment"
+    },
+
+    "location": "East US",
+    "vm_size": "Standard_DS2_v2"
+  }],
+  "provisioners": [{
+    "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+    "inline": [
+      "sudo apt update",
+      "sudo apt install software-properties-common -y",
+      "sudo add-apt-repository ppa:deadsnakes/ppa -y",
+      "sudo apt install python3.7 -y",
+      "sudo apt install python3-flask -y",
+
+      "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+    ],
+    "inline_shebang": "/bin/sh -x",
+    "type": "shell"
+  }],
+  "post-processors": [
+  	[
+  		{
+        "type": "shell-local",
+        "inline": [
+          "git clone https://github.com/satty9675/hello-api.git",
+          "export FLASK_APP=hello-api/hello.py",
+          "flask run --host=0.0.0.0"
+        ]
+      }
+  	]
+  ]
+}
